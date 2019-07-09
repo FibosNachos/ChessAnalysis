@@ -1,5 +1,5 @@
 import datetime as dt
-import numpy as np
+import pandas as pd
 
 f=open('E:\ChessData.pgn')
 
@@ -11,7 +11,10 @@ for i in range(0,41*500):
     try:
         if s[0][1:] in dict.keys():
                 if s[0][1:]=='Event':
-                    dict['Event'].append(s[2])
+                    dict['Event'].append(s[1][1:]+s[2])
+                    if s[1][1:]=='Casual':
+                        dict['WhiteRatingDiff'].append(0.1)
+                        dict['BlackRatingDiff'].append(0.1)
                 elif s[0][1:]=='Date':
                     dict['Date'].append(dt.date(int(s[1][1:5]),int(s[1][6:8]),int(s[1][9:11])))
                 elif s[0][1:]=='WhiteElo' or s[0][1:]=='BlackElo' or s[0][1:]=='WhiteRatingDiff' or s[0][1:]=='BlackRatingDiff':
@@ -33,11 +36,14 @@ for i in range(0,41*500):
 
 for index,value in enumerate(dict['White'][1:]):
     if value == "gezburger":
-        dict['RatingMe'].append(dict['WhiteElo'][index])
-        dict['RatingOp'].append(dict['BlackElo'][index])
+        dict['RatingMe'].append(dict['WhiteElo'][index+1])
+        dict['RatingOp'].append(dict['BlackElo'][index+1])
     else:
-        dict['RatingMe'].append(dict['BlackElo'][index])
-        dict['RatingOp'].append(dict['WhiteElo'][index])
+        dict['RatingMe'].append(dict['BlackElo'][index+1])
+        dict['RatingOp'].append(dict['WhiteElo'][index+1])
         
 for i in dict.keys():
     dict[i]=dict[i][1:]
+
+df=pd.DataFrame(dict)
+df.to_csv('ChessData.csv')
