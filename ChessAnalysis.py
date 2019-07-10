@@ -5,9 +5,8 @@ f=open('E:\ChessData.pgn')
 
 dict={'Event':['Blitz'],'Date':[dt.date(2000,1,1)],'White':['eins'],'Black':['zwei'],'Result':[0],'UTCTime':[0],'WhiteElo':[1500],'BlackElo':[1500],'WhiteRatingDiff':[0],'BlackRatingDiff':[0],'TimeControl':['180+0'],'ECO':['A0'],'Termination':['Normal'],'Epoch2000':[0],'RatingMe':[0],'RatingOp':[0]}
 
-for i in range(0,41*500):
-    d=f.readline()
-    s=d.split()
+for line in f:
+    s=line.split()
     try:
         if s[0][1:] in dict.keys():
                 if s[0][1:]=='Event':
@@ -32,9 +31,12 @@ for i in range(0,41*500):
         else:        
                 pass                
                 #print(s[0][1:])
-    except: print(s)
+    except: 
+        pass
+        #print(s)
 
 for index,value in enumerate(dict['White'][1:]):
+    #Replacew with own name.
     if value == "gezburger":
         dict['RatingMe'].append(dict['WhiteElo'][index+1])
         dict['RatingOp'].append(dict['BlackElo'][index+1])
