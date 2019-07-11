@@ -1,16 +1,21 @@
 import datetime as dt
 import pandas as pd
+import numpy as np
 
 f=open('E:\ChessData.pgn')
 
-dict={'Event':['Blitz'],'Date':[dt.date(2000,1,1)],'White':['eins'],'Black':['zwei'],'Result':[0],'UTCTime':[0],'WhiteElo':[1500],'BlackElo':[1500],'WhiteRatingDiff':[0],'BlackRatingDiff':[0],'TimeControl':['180+0'],'ECO':['A0'],'Termination':['Normal'],'Epoch2000':[0],'RatingMe':[0],'RatingOp':[0]}
+dict={'Number':[],'GameData':[],'Event':[],'Date':[],'White':[],'Black':[],'Result':[],'UTCTime':[],'WhiteElo':[],'BlackElo':[],'WhiteRatingDiff':[],'BlackRatingDiff':[],'TimeControl':[],'ECO':[],'Termination':[],'Epoch2000':[],'RatingMe':[],'RatingOp':[],'RatingDiffMe':[],'RatingDiffOp':[]}
 
-for line in f:
+GD=True
+for index,line in enumerate(f): 
     s=line.split()
-    try:
+    try:    
         if s[0][1:] in dict.keys():
                 if s[0][1:]=='Event':
+                    if not GD: dict['GameData'].append(np.nan)
                     dict['Event'].append(s[1][1:]+s[2])
+                    dict['Number'].append(index)
+                    GD=False
                     if s[1][1:]=='Casual':
                         dict['WhiteRatingDiff'].append(0.1)
                         dict['BlackRatingDiff'].append(0.1)
@@ -28,24 +33,27 @@ for line in f:
                     dict['Epoch2000'].append((dict['Date'][-1]-dt.date(2000,1,1)).days+dict['UTCTime'][-1]*1./24/60/60)
                 else:
                     dict[s[0][1:]].append(s[1][1:-2])
-        else:        
-                pass                
-                #print(s[0][1:])
+        else:   
+                if s[0][0] in ['1','2','3','4','5','6','7','8','9''0']:
+                    dict['GameData'].append(line)
+                    GD=True
+                else: pass                   
     except: 
-        pass
+        pass        
         #print(s)
 
-for index,value in enumerate(dict['White'][1:]):
-    #Replacew with own name.
+for index,value in enumerate(dict['White']):
     if value == "gezburger":
-        dict['RatingMe'].append(dict['WhiteElo'][index+1])
-        dict['RatingOp'].append(dict['BlackElo'][index+1])
+        dict['RatingMe'].append(dict['WhiteElo'][index])
+        dict['RatingOp'].append(dict['BlackElo'][index])
+        dict['RatingDiffMe'].append(dict['WhiteRatingDiff'][index])
+        dict['RatingDiffOp'].append(dict['BlackRatingDiff'][index])
     else:
-        dict['RatingMe'].append(dict['BlackElo'][index+1])
-        dict['RatingOp'].append(dict['WhiteElo'][index+1])
+        dict['RatingMe'].append(dict['BlackElo'][index])
+        dict['RatingOp'].append(dict['WhiteElo'][index])
+        dict['RatingDiffMe'].append(dict['BlackRatingDiff'][index])
+        dict['RatingDiffOp'].append(dict['WhiteRatingDiff'][index])
         
-for i in dict.keys():
-    dict[i]=dict[i][1:]
 
 df=pd.DataFrame(dict)
 df.to_csv('ChessData.csv')
